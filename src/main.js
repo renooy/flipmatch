@@ -16,7 +16,7 @@ const config = {
   scale: {
   mode: Phaser.Scale.Fit,
   autoCenter: Phaser.Scale.CENTER_BOTH,
-  width: 1380,
+  width: 1480,
   height: 720,
 },
 
