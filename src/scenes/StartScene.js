@@ -23,6 +23,8 @@ export default class StartScene extends Phaser.Scene {
     
     // Load sound assets
     this.load.audio("buttonClick", "assets/sounds/clickdog.mp3");
+    // Add background music - ganti dengan nama file asset Anda
+    this.load.audio("backgroundMusic", "assets/sounds/jeobgm.mp3"); // Sesuaikan dengan nama file Anda
   }
 
   create() {
@@ -207,7 +209,10 @@ export default class StartScene extends Phaser.Scene {
             duration: 400,
             ease: 'Power2.easeIn',
             onComplete: () => {
-              this.scene.start("ModeScene");
+              // Stop background music dengan fade out
+              this.fadeOutBackgroundMusic(() => {
+                this.scene.start("ModeScene");
+              });
             }
           });
         }
@@ -241,7 +246,10 @@ export default class StartScene extends Phaser.Scene {
             duration: 400,
             ease: 'Power2.easeIn',
             onComplete: () => {
-              this.scene.start("TutorialScene");
+              // Stop background music dengan fade out
+              this.fadeOutBackgroundMusic(() => {
+                this.scene.start("TutorialScene");
+              });
             }
           });
         }
@@ -268,7 +276,7 @@ export default class StartScene extends Phaser.Scene {
         duration: 100,
         yoyo: true,
         onComplete: () => {
-          // Show credit with camera movement effect
+          // Show credit with camera movement effect (background music tetap berjalan)
           this.showCreditWithCameraMovement(background, titleFlip, startButton, tutorialButton, creditButton);
         }
       });
@@ -628,9 +636,53 @@ returnToMainMenuWithCamera(background, titleFlip, startButton, tutorialButton, c
         volume: 1
       });
 
+      // Background Music - loop dan volume yang bisa diatur
+      this.backgroundMusic = this.sound.add("backgroundMusic", {
+        volume: 0.5,  // Volume 50%, sesuaikan sesuai kebutuhan
+        loop: true    // Loop terus menerus
+      });
+
+      // Play background music dengan fade in
+      this.fadeInBackgroundMusic();
+
     } catch (error) {
       console.warn('Audio setup failed:', error);
       // Continue without audio if there's an error
+    }
+  }
+
+  // Method untuk fade in background music
+  fadeInBackgroundMusic() {
+    if (this.backgroundMusic) {
+      // Mulai dengan volume 0
+      this.backgroundMusic.setVolume(0);
+      this.backgroundMusic.play();
+      
+      // Fade in selama 2 detik
+      this.tweens.add({
+        targets: this.backgroundMusic,
+        volume: 0.5, // Volume target
+        duration: 2000,
+        ease: 'Power2.easeOut'
+      });
+    }
+  }
+
+  // Method untuk fade out background music
+  fadeOutBackgroundMusic(callback) {
+    if (this.backgroundMusic && this.backgroundMusic.isPlaying) {
+      this.tweens.add({
+        targets: this.backgroundMusic,
+        volume: 0,
+        duration: 800,
+        ease: 'Power2.easeIn',
+        onComplete: () => {
+          this.backgroundMusic.stop();
+          if (callback) callback();
+        }
+      });
+    } else {
+      if (callback) callback();
     }
   }
 
@@ -644,6 +696,7 @@ returnToMainMenuWithCamera(background, titleFlip, startButton, tutorialButton, c
     
     // Clean up references
     this.buttonClickSound = null;
+    this.backgroundMusic = null;
   }
 
   // Method yang dipanggil saat scene di-destroy

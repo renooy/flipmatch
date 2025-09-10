@@ -21,12 +21,20 @@ export default class TutorialScene extends Phaser.Scene {
     this.load.image("tutorial3", "assets/Tutorial 3.png");
     this.load.image("tutorial4", "assets/Tutorial 4.png");
     this.load.image("backButtonn", "assets/back.png");
+    
+    // Load background music (sama seperti StartScene)
+    this.load.audio("backgroundMusic", "assets/sounds/jeobgm.mp3");
+    // Load sound effects
+    this.load.audio("buttonClick", "assets/sounds/clickdog.mp3");
   }
 
   create() {
     const { width, height } = this.scale;
     const centerX = width / 2;
     const centerY = height / 2;
+
+    // Setup audio - cek apakah music sudah berjalan dari scene sebelumnya
+    this.setupAudio();
 
     // Background
     const background = this.add.image(centerX, centerY, "bg")
@@ -55,6 +63,10 @@ export default class TutorialScene extends Phaser.Scene {
     });
 
     backButton.on('pointerdown', () => {
+      // Play click sound
+      if (this.buttonClickSound) {
+        this.buttonClickSound.play();
+      }
       this.backToStart();
     });
 
@@ -90,6 +102,80 @@ export default class TutorialScene extends Phaser.Scene {
     this.input.keyboard.on('keydown-A', () => this.previousStep());
     this.input.keyboard.on('keydown-D', () => this.nextStep());
     this.input.keyboard.on('keydown-ESC', () => this.backToStart());
+  }
+
+  setupAudio() {
+    try {
+      // Jangan stop semua sound - biarkan background music terus berjalan
+      // this.sound.stopAll(); // HAPUS INI!
+
+      // Sound Effects
+      this.buttonClickSound = this.sound.add("buttonClick", {
+        volume: 1
+      });
+
+      // Cek apakah background music sudah ada dan berjalan dari scene sebelumnya
+      let existingMusic = null;
+      
+      // Cari background music yang mungkin sudah berjalan
+      this.sound.sounds.forEach(sound => {
+        if (sound.key === "backgroundMusic" && sound.isPlaying) {
+          existingMusic = sound;
+        }
+      });
+
+      if (existingMusic) {
+        // Jika musik sudah berjalan, gunakan yang sudah ada
+        this.backgroundMusic = existingMusic;
+        console.log('Background music continues from previous scene');
+      } else {
+        // Jika tidak ada musik yang berjalan, buat yang baru
+        this.backgroundMusic = this.sound.add("backgroundMusic", {
+          volume: 0.5,
+          loop: true
+        });
+        
+        // Play dengan fade in
+        this.fadeInBackgroundMusic();
+        console.log('Started new background music');
+      }
+
+    } catch (error) {
+      console.warn('Audio setup failed:', error);
+    }
+  }
+
+  // Method untuk fade in background music (jika musik baru dimulai)
+  fadeInBackgroundMusic() {
+    if (this.backgroundMusic && !this.backgroundMusic.isPlaying) {
+      this.backgroundMusic.setVolume(0);
+      this.backgroundMusic.play();
+      
+      this.tweens.add({
+        targets: this.backgroundMusic,
+        volume: 0.5,
+        duration: 2000,
+        ease: 'Power2.easeOut'
+      });
+    }
+  }
+
+  // Method untuk fade out background music (hanya saat keluar ke non-menu scene)
+  fadeOutBackgroundMusic(callback) {
+    if (this.backgroundMusic && this.backgroundMusic.isPlaying) {
+      this.tweens.add({
+        targets: this.backgroundMusic,
+        volume: 0,
+        duration: 800,
+        ease: 'Power2.easeIn',
+        onComplete: () => {
+          this.backgroundMusic.stop();
+          if (callback) callback();
+        }
+      });
+    } else {
+      if (callback) callback();
+    }
   }
 
   showTutorialStep(stepIndex, direction = 'none') {
@@ -162,26 +248,45 @@ export default class TutorialScene extends Phaser.Scene {
     // Clean up keyboard listeners
     this.input.keyboard.removeAllListeners();
     
-    // Stop all tweens
-    this.tweens.killAll();
+    // Stop tweens untuk tutorial images
+    this.tutorialImages.forEach(img => {
+      this.tweens.killTweensOf(img);
+    });
     
-    // Fade out everything
+    // Fade out tutorial images
     this.tweens.add({
       targets: this.tutorialImages,
       alpha: 0,
       duration: 400,
       ease: 'Power2.easeIn',
       onComplete: () => {
+        // PENTING: Jangan stop background music saat kembali ke StartScene
+        // Biarkan musik terus berjalan untuk seamless transition
         this.scene.start("StartScene");
       }
     });
   }
 
-  // Add cleanup method
+  // Cleanup method yang tidak menghentikan background music
   shutdown() {
-    // Clean up when scene is destroyed
+    // Clean up keyboard listeners
     this.input.keyboard.removeAllListeners();
-    this.tweens.killAll();
+    
+    // Stop tweens untuk tutorial images saja
+    this.tutorialImages.forEach(img => {
+      this.tweens.killTweensOf(img);
+    });
+    
+    // Clean up references tapi JANGAN stop background music
     this.tutorialImages = [];
+    this.buttonClickSound = null;
+    
+    // JANGAN set this.backgroundMusic = null agar musik terus berjalan
+    console.log('TutorialScene shutdown - background music continues');
+  }
+
+  // Method yang dipanggil saat scene di-destroy
+  destroy() {
+    this.shutdown();
   }
 }
