@@ -28,24 +28,18 @@ export default class ModeScene extends Phaser.Scene {
     this.load.audio("buttonClick", "assets/sounds/clickdog.mp3");
     this.load.audio("backSound", "assets/sounds/clickdog.mp3");
     this.load.audio("modeSelect", "assets/sounds/clickdog.mp3");
-    
-    // Load BGM - ganti dengan nama file BGM Anda
-    this.load.audio("modeBGM", "assets/sounds/jeobgm.mp3"); // Sesuaikan dengan nama file BGM Anda
   }
 
   create() {
     const { centerX, centerY, width, height } = this.cameras.main;
 
-    // Setup audio termasuk BGM
+    // Setup audio
     this.setupAudio();
 
-    // Mulai BGM dengan fade in
-    this.playBGM();
-
-    // Background
+    // 🌄 Background
     this.add.image(centerX, centerY, "bg").setDisplaySize(width, height);
 
-    // Judul di atas cover panel dengan animasi masuk
+    // 🖼️ Judul di atas cover panel dengan animasi masuk
     const titleMode = this.add.image(centerX, centerY - 350, "titleMode")
       .setScale(0.4)
       .setAlpha(0);
@@ -60,7 +54,7 @@ export default class ModeScene extends Phaser.Scene {
       ease: 'Back.easeOut'
     });
 
-    // Cover Panel dengan animasi masuk
+    // 🧩 Cover Panel dengan animasi masuk
     const coverPanel = this.add.image(centerX, centerY + 120, "coverPanel")
       .setScale(1, 0.7)
       .setAlpha(0);
@@ -75,7 +69,7 @@ export default class ModeScene extends Phaser.Scene {
       ease: 'Power2.easeOut'
     });
 
-    // Tombol back dengan animasi masuk
+    // 🔙 Tombol back dengan animasi masuk
     const back = this.add.image(-40, 40, "btnBack")
       .setScale(0.6)
       .setInteractive();
@@ -92,9 +86,6 @@ export default class ModeScene extends Phaser.Scene {
       // Play back sound
       this.playBackSound();
 
-      // Stop BGM dengan fade out
-      this.stopBGM();
-
       // Animasi keluar sebelum pindah scene
       this.tweens.add({
         targets: [titleMode, coverPanel],
@@ -109,7 +100,7 @@ export default class ModeScene extends Phaser.Scene {
       });
     });
 
-    // Data mode
+    // 📦 Data mode
     this.modes = [
       {
         title: "Easy",
@@ -148,25 +139,25 @@ export default class ModeScene extends Phaser.Scene {
       }
     ];
 
-    // Posisi tetap untuk 3 kartu (Kiri, Tengah, Kanan)
+    // 🎯 Posisi tetap untuk 3 kartu (Kiri, Tengah, Kanan)
     this.cardPositions = [
       { x: centerX - 350, y: centerY + 80, scale: 1.0 }, // Kiri
       { x: centerX, y: centerY + 80, scale: 1.0 },       // Tengah
       { x: centerX + 350, y: centerY + 80, scale: 1.0 }  // Kanan
     ];
 
-    // Variabel carousel
+    // 📱 Variabel carousel
     this.currentStartIndex = 0; // Index mode pertama yang ditampilkan
     this.displayedCards = [];   // Array untuk menyimpan 3 kartu yang ditampilkan
     this.isAnimating = false;   // Flag untuk mencegah spam scroll
 
-    // Setup kontrol
+    // 🎮 Setup kontrol
     this.setupControls();
     
-    // Buat indikator dots
+    // 📍 Buat indikator dots
     this.time.delayedCall(600, () => {
       this.createIndicators();
-      // Tampilkan kartu awal dengan delay
+      // 🎯 Tampilkan kartu awal dengan delay
       this.time.delayedCall(200, () => {
         this.updateCarousel();
       });
@@ -191,45 +182,8 @@ export default class ModeScene extends Phaser.Scene {
         volume: 0.7
       });
 
-      // Background Music
-      this.bgmSound = this.sound.add("modeBGM", {
-        volume: 0.4,
-        loop: true
-      });
-
     } catch (error) {
       console.warn('Audio setup failed:', error);
-    }
-  }
-
-  playBGM() {
-    if (this.bgmSound && !this.bgmSound.isPlaying) {
-      // Set volume awal ke 0 untuk fade in effect
-      this.bgmSound.setVolume(0);
-      this.bgmSound.play();
-      
-      // Fade in BGM
-      this.tweens.add({
-        targets: this.bgmSound,
-        volume: 0.4,
-        duration: 2000,
-        ease: 'Power2.easeOut'
-      });
-    }
-  }
-
-  stopBGM() {
-    if (this.bgmSound && this.bgmSound.isPlaying) {
-      // Fade out BGM
-      this.tweens.add({
-        targets: this.bgmSound,
-        volume: 0,
-        duration: 1000,
-        ease: 'Power2.easeIn',
-        onComplete: () => {
-          this.bgmSound.stop();
-        }
-      });
     }
   }
 
@@ -489,9 +443,6 @@ export default class ModeScene extends Phaser.Scene {
           // Play mode select sound
           this.playModeSelectSound();
           
-          // Stop BGM sebelum pindah scene
-          this.stopBGM();
-          
           // Animasi zoom out sebelum pindah scene
           this.tweens.add({
             targets: [card, icon, title, desc],
@@ -709,14 +660,13 @@ export default class ModeScene extends Phaser.Scene {
     // Kill all tweens first
     this.tweens.killAll();
     
-    // Stop all sounds including BGM
+    // Stop all sounds
     this.sound.stopAll();
     
     // Clean up references
     this.buttonClickSound = null;
     this.backSound = null;
     this.modeSelectSound = null;
-    this.bgmSound = null;
   }
 
   // Method yang dipanggil saat scene di-destroy
