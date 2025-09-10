@@ -14,10 +14,10 @@ const config = {
   type: Phaser.AUTO,
   backgroundColor: '#000000',
   scale: {
-    mode: Phaser.Scale.RESIZE, // ⬅️ otomatis menyesuaikan ukuran layar
+    mode: Phaser.Scale.Fit, // ⬅️ otomatis menyesuaikan ukuran layar
     autoCenter: Phaser.Scale.CENTER_BOTH,
-    width: window.innerWidth,
-    height: window.innerHeight,
+    width: 1024,
+    height: 576,
   },
  scene: [ EntranceScene,StartScene,TutorialScene, ModeScene, PlayEasyScene, PlayNormalScene, PlayHardScene, PlayExtremeScene,PlayAbnormalScene],
 };
