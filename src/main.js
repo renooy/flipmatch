@@ -16,8 +16,8 @@ const config = {
   scale: {
   mode: Phaser.Scale.FIT,
   autoCenter: Phaser.Scale.CENTER_BOTH,
-  width: window.innerWidth,
-  height: window.innerHeight,
+  width: 1920,
+  height: 1080,
 },
 
  scene: [ EntranceScene,StartScene,TutorialScene, ModeScene, PlayEasyScene, PlayNormalScene, PlayHardScene, PlayExtremeScene,PlayAbnormalScene],
