@@ -16,8 +16,8 @@ const config = {
   scale: {
     mode: Phaser.Scale.Fit, // ⬅️ otomatis menyesuaikan ukuran layar
     autoCenter: Phaser.Scale.CENTER_BOTH,
-    width: 1000,
-    height: 700,
+    width: 1100,
+    height: 1000,
   },
  scene: [ EntranceScene,StartScene,TutorialScene, ModeScene, PlayEasyScene, PlayNormalScene, PlayHardScene, PlayExtremeScene,PlayAbnormalScene],
 };
