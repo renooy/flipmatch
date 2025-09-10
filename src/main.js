@@ -1,4 +1,4 @@
-import Phaser from 'phaser';
+
 import TutorialScene from './scenes/TutorialScene';
 import StartScene from './scenes/StartScene';
 import ModeScene from './scenes/ModeScene';
